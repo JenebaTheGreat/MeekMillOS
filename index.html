@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robert Williams — Empire Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0A0F1E;
+    --navy2: #111827;
+    --panel: #141c2e;
+    --panel2: #1a2338;
+    --border: rgba(255,255,255,0.07);
+    --gold: #C9A84C;
+    --gold2: #E8C97A;
+    --red: #E03E3E;
+    --green: #2ECC71;
+    --blue: #4A90D9;
+    --muted: rgba(255,255,255,0.38);
+    --text: rgba(255,255,255,0.88);
+    --sub: rgba(255,255,255,0.55);
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+    --font-body: 'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--navy); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+
+  /* NAV */
+  nav { background: var(--navy2); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
+  .nav-brand { font-family: var(--font-display); font-size: 20px; letter-spacing: 0.08em; color: var(--gold); }
+  .nav-brand span { color: var(--text); }
+  .nav-tabs { display: flex; gap: 0; }
+  .nav-tab { padding: 0 18px; height: 56px; display: flex; align-items: center; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; font-weight: 500; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .nav-right { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+
+  /* LAYOUT */
+  .page { display: none; padding: 2rem; max-width: 1400px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* HERO METRICS */
+  .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 2rem; }
+  .metric-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+  .metric-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .metric-val { font-family: var(--font-display); font-size: 34px; letter-spacing: 0.02em; color: var(--gold); line-height: 1; margin-bottom: 4px; }
+  .metric-sub { font-size: 11px; color: var(--sub); }
+  .metric-up { color: var(--green); font-size: 11px; margin-top: 4px; }
+  .metric-down { color: var(--red); font-size: 11px; margin-top: 4px; }
+
+  /* SECTION HEADERS */
+  .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .section-title { font-family: var(--font-display); font-size: 18px; letter-spacing: 0.06em; color: var(--text); }
+  .section-badge { font-size: 10px; font-family: var(--font-mono); color: var(--gold); background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.2); border-radius: 4px; padding: 3px 8px; }
+
+  /* GRID LAYOUTS */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
+  .two-thirds { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
+
+  /* PANELS */
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+  .panel-title { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; font-weight: 500; }
+
+  /* REVENUE BARS */
+  .rev-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .rev-label { font-size: 12px; color: var(--sub); width: 160px; flex-shrink: 0; }
+  .rev-bar-wrap { flex: 1; background: rgba(255,255,255,0.06); border-radius: 3px; height: 6px; overflow: hidden; }
+  .rev-bar { height: 100%; border-radius: 3px; background: var(--gold); transition: width 1s ease; }
+  .rev-bar.green { background: var(--green); }
+  .rev-bar.blue { background: var(--blue); }
+  .rev-val { font-family: var(--font-mono); font-size: 11px; color: var(--text); width: 90px; text-align: right; flex-shrink: 0; }
+
+  /* CATALOG TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); font-weight: 500; }
+  td { padding: 9px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--sub); vertical-align: top; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  td.highlight { color: var(--text); font-weight: 500; }
+  td.gold { color: var(--gold); font-family: var(--font-mono); }
+
+  /* BADGES */
+  .badge { display: inline-block; font-size: 10px; font-family: var(--font-mono); padding: 2px 7px; border-radius: 3px; }
+  .badge-gold { background: rgba(201,168,76,0.15); color: var(--gold2); border: 1px solid rgba(201,168,76,0.25); }
+  .badge-plat { background: rgba(74,144,217,0.15); color: #7ab8f5; border: 1px solid rgba(74,144,217,0.25); }
+  .badge-green { background: rgba(46,204,113,0.12); color: #6ee7a4; border: 1px solid rgba(46,204,113,0.2); }
+  .badge-red { background: rgba(224,62,62,0.12); color: #f87171; border: 1px solid rgba(224,62,62,0.2); }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 20px; }
+  .timeline::before { content: ''; position: absolute; left: 5px; top: 8px; bottom: 8px; width: 1px; background: var(--border); }
+  .tl-item { position: relative; margin-bottom: 16px; }
+  .tl-dot { position: absolute; left: -18px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); border: 2px solid var(--navy); }
+  .tl-dot.inactive { background: var(--muted); }
+  .tl-year { font-family: var(--font-mono); font-size: 10px; color: var(--gold); margin-bottom: 2px; }
+  .tl-label { font-size: 12px; color: var(--text); font-weight: 500; margin-bottom: 2px; }
+  .tl-desc { font-size: 11px; color: var(--sub); line-height: 1.5; }
+
+  /* OPPORTUNITY CARDS */
+  .opp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .opp-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; position: relative; overflow: hidden; }
+  .opp-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gold); }
+  .opp-card.blue-ocean::before { background: var(--blue); }
+  .opp-card.white-space::before { background: var(--green); }
+  .opp-type { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; font-family: var(--font-mono); }
+  .opp-title { font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 6px; }
+  .opp-desc { font-size: 11px; color: var(--sub); line-height: 1.6; margin-bottom: 10px; }
+  .opp-revenue { font-family: var(--font-mono); font-size: 12px; color: var(--gold); }
+
+  /* BRIEF / RECOMMENDATIONS */
+  .brief-panel { background: var(--panel); border: 1px solid rgba(201,168,76,0.2); border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .brief-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .brief-title { font-family: var(--font-display); font-size: 16px; letter-spacing: 0.06em; color: var(--gold); }
+  .brief-date { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+  .brief-body { font-size: 13px; color: var(--sub); line-height: 1.8; }
+  .brief-body strong { color: var(--text); font-weight: 500; }
+  .brief-rec { background: rgba(201,168,76,0.06); border-left: 2px solid var(--gold); padding: 10px 14px; margin-top: 10px; border-radius: 0 6px 6px 0; }
+  .brief-rec-label { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; font-family: var(--font-mono); }
+  .brief-rec-text { font-size: 12px; color: var(--text); line-height: 1.6; }
+
+  /* DONUT CHART */
+  .donut-wrap { display: flex; align-items: center; gap: 1.5rem; }
+  .donut-legend { flex: 1; }
+  .legend-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .legend-label { font-size: 11px; color: var(--sub); flex: 1; }
+  .legend-pct { font-family: var(--font-mono); font-size: 11px; color: var(--text); }
+
+  /* DATA INPUT */
+  .input-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
+  .input-group label { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 4px; font-weight: 500; }
+  .input-group input, .input-group select { width: 100%; background: var(--navy2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; color: var(--text); font-family: var(--font-mono); font-size: 12px; outline: none; }
+  .input-group input:focus, .input-group select:focus { border-color: rgba(201,168,76,0.4); }
+  .btn-gold { background: var(--gold); color: var(--navy); border: none; border-radius: 6px; padding: 9px 20px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--font-body); letter-spacing: 0.04em; }
+  .btn-gold:hover { background: var(--gold2); }
+
+  /* CANVAS CHARTS */
+  canvas { width: 100% !important; }
+
+  /* ENTITY CARDS */
+  .entity-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .entity-card { background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+  .entity-name { font-size: 13px; color: var(--text); font-weight: 500; margin-bottom: 4px; }
+  .entity-type { font-size: 10px; color: var(--muted); font-family: var(--font-mono); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .entity-status { font-size: 11px; }
+
+  /* INDEPENDENCE CALLOUT */
+  .callout { background: linear-gradient(135deg, rgba(46,204,113,0.08), rgba(201,168,76,0.06)); border: 1px solid rgba(46,204,113,0.2); border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem; }
+  .callout-label { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); margin-bottom: 6px; font-family: var(--font-mono); }
+  .callout-headline { font-family: var(--font-display); font-size: 20px; color: var(--text); margin-bottom: 6px; }
+  .callout-body { font-size: 12px; color: var(--sub); line-height: 1.7; }
+
+  /* CHART CONTAINERS */
+  .chart-container { position: relative; height: 220px; }
+
+  /* MB UTILS */
+  .mb1 { margin-bottom: 1rem; }
+  .mb2 { margin-bottom: 1.5rem; }
+
+  /* DATA STORY SECTION */
+  .story-block { background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin-bottom: 12px; }
+  .story-eyebrow { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); font-family: var(--font-mono); margin-bottom: 6px; }
+  .story-head { font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 6px; }
+  .story-body { font-size: 12px; color: var(--sub); line-height: 1.7; }
+
+  /* ADD DATA SECTION */
+  .add-data-panel { background: var(--panel); border: 1px solid rgba(74,144,217,0.2); border-radius: 10px; padding: 1.5rem; }
+  .add-data-title { font-family: var(--font-display); font-size: 16px; letter-spacing: 0.06em; color: var(--blue); margin-bottom: 0.75rem; }
+  #generated-brief { background: var(--navy2); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-top: 1rem; font-size: 12px; color: var(--text); line-height: 1.8; display: none; }
+
+  @media (max-width: 900px) {
+    .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    .two-col, .three-col, .two-thirds, .opp-grid { grid-template-columns: 1fr; }
+    .entity-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">ROBERT WILLIAMS <span>/ EMPIRE OS</span></div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showPage('overview')">Overview</div>
+    <div class="nav-tab" onclick="showPage('revenue')">Revenue</div>
+    <div class="nav-tab" onclick="showPage('catalog')">Catalog</div>
+    <div class="nav-tab" onclick="showPage('operations')">Operations</div>
+    <div class="nav-tab" onclick="showPage('opportunities')">Opportunities</div>
+    <div class="nav-tab" onclick="showPage('brief')">Weekly Brief</div>
+  </div>
+  <div class="nav-right">COMMAND CENTER v1.0 &nbsp;|&nbsp; Powered by AI Atelier</div>
+</nav>
+
+
+<!-- =========== OVERVIEW =========== -->
+<div id="page-overview" class="page active">
+
+  <div class="callout">
+    <div class="callout-label">Independence Milestone — 2025</div>
+    <div class="callout-headline">From 13% to 100% — The Biggest Financial Shift of Your Career</div>
+    <div class="callout-body">For 13 years under MMG/Atlantic, you earned 13 cents of every dollar your music generated. In 2025, you walked away with 100% of your music revenue as a fully independent artist through Dream Chasers Records. This dashboard exists to make sure every dollar is tracked, every opportunity is captured, and every decision is grounded in data — not instinct alone.</div>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">Estimated Net Worth</div>
+      <div class="metric-val">$20M+</div>
+      <div class="metric-sub">Most cited figure; up to $55M (high estimate)</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Music Revenue Share</div>
+      <div class="metric-val">100%</div>
+      <div class="metric-sub">Up from 13% pre-independence</div>
+      <div class="metric-up">▲ +87 points since 2025</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">RIAA Certifications</div>
+      <div class="metric-val">26+</div>
+      <div class="metric-sub">Solo + featured catalog</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Lids Investment ROI</div>
+      <div class="metric-val">3,900%</div>
+      <div class="metric-sub">$200K in → $8M reported return</div>
+      <div class="metric-up">▲ Benchmark deal</div>
+    </div>
+  </div>
+
+  <div class="two-thirds">
+    <div class="panel">
+      <div class="panel-title">Revenue Mix Estimate (Annual)</div>
+      <div class="donut-wrap">
+        <canvas id="donutChart" width="160" height="160" style="width:160px;height:160px;flex-shrink:0;"></canvas>
+        <div class="donut-legend">
+          <div class="legend-row"><div class="legend-dot" style="background:#C9A84C"></div><div class="legend-label">Touring / Live</div><div class="legend-pct">38%</div></div>
+          <div class="legend-row"><div class="legend-dot" style="background:#4A90D9"></div><div class="legend-label">Music / Streaming</div><div class="legend-pct">18%</div></div>
+          <div class="legend-row"><div class="legend-dot" style="background:#2ECC71"></div><div class="legend-label">Brand Endorsements</div><div class="legend-pct">18%</div></div>
+          <div class="legend-row"><div class="legend-dot" style="background:#E8C97A"></div><div class="legend-label">Investments (Lids etc.)</div><div class="legend-pct">15%</div></div>
+          <div class="legend-row"><div class="legend-dot" style="background:#7B4FD4"></div><div class="legend-label">Label / Dream Chasers</div><div class="legend-pct">7%</div></div>
+          <div class="legend-row"><div class="legend-dot" style="background:#64748b"></div><div class="legend-label">Sync / Media / Other</div><div class="legend-pct">4%</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Business Timeline</div>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">2012</div><div class="tl-label">Dream Chasers Records Founded</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">2019</div><div class="tl-label">Roc Nation JV + Lids Investment</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">2019</div><div class="tl-label">Reform Alliance Co-Founded</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">2022</div><div class="tl-label">WME Deal + Culture Currency</div><div class="tl-desc">Post Roc Nation split. Broader representation.</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">2025</div><div class="tl-label">Full Independence</div><div class="tl-desc">100% music revenue. $5M raise target.</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">2026</div><div class="tl-label">AI-Powered Family Office</div><div class="tl-desc">Claude AI integrated. CEO on LinkedIn.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="story-block">
+      <div class="story-eyebrow">Sales Overview</div>
+      <div class="story-head">A Certified Catalog Spanning 14 Years</div>
+      <div class="story-body">All 4 studio albums are RIAA Gold or higher. Dreams Worth More Than Money and Championships both debuted at #1 on the Billboard 200. Going Bad (feat. Drake) peaked at #4 on the Hot 100 — his biggest solo charting single. Featured certifications span Post Malone, Roddy Ricch, Lil Baby, NAV, Future, and more — proving catalog value extends well beyond solo releases.</div>
+    </div>
+    <div class="story-block">
+      <div class="story-eyebrow">Operations</div>
+      <div class="story-head">A Multi-Entity Business Operator</div>
+      <div class="story-body">Beyond music: Dream Chasers Records handles A&R and business affairs. Culture Currency (with WME) opens business access for entertainers. Reform Alliance operates as a 501(c)(3) with Jay-Z and Michael Rubin. The Lids co-ownership produced a reported $8M return on a $200K investment — the template for how smart capital allocation should work across every future venture.</div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- =========== REVENUE =========== -->
+<div id="page-revenue" class="page">
+
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">Streaming + Music Est.</div>
+      <div class="metric-val">$1.25M</div>
+      <div class="metric-sub">$500K–$2M+ annual range</div>
+      <div class="metric-up">▲ 87% uplift from independence</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Touring (Active Years)</div>
+      <div class="metric-val">$3.5M</div>
+      <div class="metric-sub">$2M–$5M per active tour cycle</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Brand Endorsements</div>
+      <div class="metric-val">$1M</div>
+      <div class="metric-sub">Est. $500K–$2M active deal value</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Capital Raise Target</div>
+      <div class="metric-val">$5M</div>
+      <div class="metric-sub">New album, short film, book (2025)</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-title">Revenue Streams vs. Estimated Range</div>
+      <div class="rev-row"><div class="rev-label">Touring / Live</div><div class="rev-bar-wrap"><div class="rev-bar" style="width:70%"></div></div><div class="rev-val">$2M–$5M</div></div>
+      <div class="rev-row"><div class="rev-label">Streaming & Music</div><div class="rev-bar-wrap"><div class="rev-bar blue" style="width:25%"></div></div><div class="rev-val">$500K–$2M</div></div>
+      <div class="rev-row"><div class="rev-label">Brand Endorsements</div><div class="rev-bar-wrap"><div class="rev-bar green" style="width:25%"></div></div><div class="rev-val">$500K–$2M</div></div>
+      <div class="rev-row"><div class="rev-label">Sync Licensing</div><div class="rev-bar-wrap"><div class="rev-bar" style="width:12%;background:#7B4FD4"></div></div><div class="rev-val">$100K–$500K</div></div>
+      <div class="rev-row"><div class="rev-label">Label (Dream Chasers)</div><div class="rev-bar-wrap"><div class="rev-bar" style="width:8%;background:#64748b"></div></div><div class="rev-val">Variable</div></div>
+      <div class="rev-row"><div class="rev-label">Real Estate</div><div class="rev-bar-wrap"><div class="rev-bar" style="width:10%;background:#94a3b8"></div></div><div class="rev-val">Undisclosed</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Revenue Share: Before vs. After Independence</div>
+      <div class="chart-container">
+        <canvas id="independenceChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel mb2">
+    <div class="panel-title">Monthly Revenue Tracker — Add New Data</div>
+    <div class="input-row">
+      <div class="input-group"><label>Month</label><input type="month" id="input-month" value="2026-03"></div>
+      <div class="input-group"><label>Streaming Revenue ($)</label><input type="number" id="input-streaming" placeholder="e.g. 85000"></div>
+      <div class="input-group"><label>Touring Revenue ($)</label><input type="number" id="input-touring" placeholder="e.g. 250000"></div>
+      <div class="input-group"><label>Brand / Endorsement ($)</label><input type="number" id="input-brand" placeholder="e.g. 120000"></div>
+      <div class="input-group"><label>Label Revenue ($)</label><input type="number" id="input-label" placeholder="e.g. 40000"></div>
+      <div class="input-group"><label>Other ($)</label><input type="number" id="input-other" placeholder="e.g. 25000"></div>
+    </div>
+    <button class="btn-gold" onclick="addMonthlyData()">Add Month + Refresh Brief</button>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Monthly Revenue Trend</div>
+    <div class="chart-container">
+      <canvas id="revenueChart"></canvas>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- =========== CATALOG =========== -->
+<div id="page-catalog" class="page">
+
+  <div class="metrics-grid">
+    <div class="metric-card"><div class="metric-label">Studio Albums</div><div class="metric-val">4</div><div class="metric-sub">All Gold certified or higher</div></div>
+    <div class="metric-card"><div class="metric-label">#1 Album Debuts</div><div class="metric-val">2</div><div class="metric-sub">Dreams Worth More Than Money, Championships</div></div>
+    <div class="metric-card"><div class="metric-label">Featured Certifications</div><div class="metric-val">13+</div><div class="metric-sub">Gold & Platinum across artist roster</div></div>
+    <div class="metric-card"><div class="metric-label">Top Hot 100 Single</div><div class="metric-val">#4</div><div class="metric-sub">Going Bad (feat. Drake)</div></div>
+  </div>
+
+  <div class="section-head mb1"><div class="section-title">Studio Albums</div><div class="section-badge">RIAA CERTIFIED</div></div>
+  <div class="panel mb2">
+    <table>
+      <thead><tr><th>Album</th><th>Year</th><th>Chart Peak</th><th>Certification</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="highlight">Championships</td><td class="gold">2018</td><td>#1 Billboard 200</td><td><span class="badge badge-gold">GOLD</span></td><td>First #1 album. 246K first-week sales.</td></tr>
+        <tr><td class="highlight">Wins & Losses</td><td class="gold">2017</td><td>#3 Billboard 200</td><td><span class="badge badge-gold">GOLD</span></td><td>Gold certified.</td></tr>
+        <tr><td class="highlight">Dreams Worth More Than Money</td><td class="gold">2015</td><td>#1 Billboard 200</td><td><span class="badge badge-gold">GOLD</span></td><td>Second #1 debut.</td></tr>
+        <tr><td class="highlight">Dreams & Nightmares</td><td class="gold">2012</td><td>#2 Billboard 200</td><td><span class="badge badge-gold">GOLD</span></td><td>Debut album. Intro became cultural anthem.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-head mb1"><div class="section-title">Solo Singles — Certified</div></div>
+  <div class="panel mb2">
+    <table>
+      <thead><tr><th>Title</th><th>Year</th><th>Chart</th><th>Certification</th></tr></thead>
+      <tbody>
+        <tr><td class="highlight">Going Bad (feat. Drake)</td><td class="gold">2018</td><td>#4 Hot 100</td><td><span class="badge badge-plat">PLATINUM</span></td></tr>
+        <tr><td class="highlight">Dreams & Nightmares (Intro)</td><td class="gold">2012</td><td>Hot 100</td><td><span class="badge badge-plat">PLATINUM</span></td></tr>
+        <tr><td class="highlight">Sharing Locations (ft. Lil Baby & Lil Durk)</td><td class="gold">2021</td><td>Hot 100</td><td><span class="badge badge-gold">GOLD</span></td></tr>
+        <tr><td class="highlight">We Ball (feat. Young Thug)</td><td class="gold">2018</td><td>Hot 100</td><td><span class="badge badge-gold">GOLD</span></td></tr>
+        <tr><td class="highlight">Check</td><td class="gold">2018</td><td>Hot 100</td><td><span class="badge badge-gold">GOLD</span></td></tr>
+        <tr><td class="highlight">Lord Knows</td><td class="gold">2018</td><td>Hot 100</td><td><span class="badge badge-gold">GOLD</span></td></tr>
+        <tr><td class="highlight">What's Free (feat. Rick Ross & Jay-Z)</td><td class="gold">2018</td><td>Hot 100</td><td><span class="badge badge-gold">GOLD</span></td></tr>
+        <tr><td class="highlight">Bad for You (feat. Nicki Minaj)</td><td class="gold">2018</td><td>Hot 100</td><td><span class="badge badge-gold">GOLD</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-head mb1"><div class="section-title">Featured Artist Certifications</div><div class="section-badge">CATALOG REACH</div></div>
+  <div class="panel">
+    <table>
+      <thead><tr><th>Title</th><th>Lead Artist</th><th>Year Cert.</th><th>Certification</th><th>Label</th></tr></thead>
+      <tbody>
+        <tr><td class="highlight">On the Road (feat. Meek Mill & Lil Baby)</td><td>Post Malone</td><td class="gold">2021</td><td><span class="badge badge-plat">PLATINUM</span></td><td>Republic</td></tr>
+        <tr><td class="highlight">PETA (feat. Meek Mill)</td><td>Roddy Ricch</td><td class="gold">2021</td><td><span class="badge badge-gold">GOLD</span></td><td>Atlantic</td></tr>
+        <tr><td class="highlight">100 Shooters (feat. Meek Mill & Doe Boy)</td><td>Future</td><td class="gold">2020</td><td><span class="badge badge-gold">GOLD</span></td><td>Epic/Freebandz</td></tr>
+        <tr><td class="highlight">TAP (feat. Meek Mill)</td><td>NAV</td><td class="gold">2022</td><td><span class="badge badge-gold">GOLD</span></td><td>XO / Republic</td></tr>
+        <tr><td class="highlight">Time (feat. Meek Mill)</td><td>Lil Baby</td><td class="gold">2022</td><td><span class="badge badge-gold">GOLD</span></td><td>QC / Motown</td></tr>
+        <tr><td class="highlight">Still Runnin (feat. Meek Mill)</td><td>Lil Baby & Lil Durk</td><td class="gold">2022</td><td><span class="badge badge-gold">GOLD</span></td><td>QC / Alamo</td></tr>
+        <tr><td class="highlight">F-U (feat. Meek Mill)</td><td>Yo Gotti</td><td class="gold">2023</td><td><span class="badge badge-gold">GOLD</span></td><td>Epic</td></tr>
+        <tr><td class="highlight">You Stay (feat. Meek Mill et al.)</td><td>DJ Khaled</td><td class="gold">2021</td><td><span class="badge badge-gold">GOLD</span></td><td>We The Best/Epic</td></tr>
+        <tr><td class="highlight">100 Bands (ft. Quavo, 21 Savage, YG, Meek)</td><td>Mustard</td><td class="gold">2022</td><td><span class="badge badge-gold">GOLD</span></td><td>10 Summers / Interscope</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+
+<!-- =========== OPERATIONS =========== -->
+<div id="page-operations" class="page">
+
+  <div class="section-head mb1"><div class="section-title">Business Entities</div><div class="section-badge">ACTIVE STRUCTURE</div></div>
+  <div class="entity-grid mb2">
+    <div class="entity-card">
+      <div class="entity-name">Dream Chasers Records</div>
+      <div class="entity-type">Record Label / Imprint</div>
+      <div class="entity-status"><span class="badge badge-green">ACTIVE</span></div>
+      <div style="font-size:11px;color:var(--sub);margin-top:8px;line-height:1.6;">Founded 2012. Fully independent as of 2025. Handles creative strategy, marketing, A&R, and business affairs. NYC corporate office + recording studio.</div>
+    </div>
+    <div class="entity-card">
+      <div class="entity-name">Culture Currency</div>
+      <div class="entity-type">Strategic Initiative / Venture</div>
+      <div class="entity-status"><span class="badge badge-green">ACTIVE</span></div>
+      <div style="font-size:11px;color:var(--sub);margin-top:8px;line-height:1.6;">Hybrid platform built with WME to open business resources to entertainers and athletes. 2022 launch. Expansion vehicle for artist-to-business transition.</div>
+    </div>
+    <div class="entity-card">
+      <div class="entity-name">Reform Alliance</div>
+      <div class="entity-type">501(c)(3) Non-Profit</div>
+      <div class="entity-status"><span class="badge badge-green">ACTIVE</span></div>
+      <div style="font-size:11px;color:var(--sub);margin-top:8px;line-height:1.6;">Co-founded 2019 with Jay-Z, Michael Rubin, Robert Kraft. Criminal-justice reform focused on probation and parole. Brand equity + mission asset.</div>
+    </div>
+    <div class="entity-card">
+      <div class="entity-name">Lids Co-Ownership</div>
+      <div class="entity-type">Retail Equity Investment</div>
+      <div class="entity-status"><span class="badge badge-gold">$8M RETURN</span></div>
+      <div style="font-size:11px;color:var(--sub);margin-top:8px;line-height:1.6;">$200K invested. Reported $8M return. Creative strategy + limited-edition hat line launch. Template for future brand co-ownership plays.</div>
+    </div>
+    <div class="entity-card">
+      <div class="entity-name">WME Strategic Partnership</div>
+      <div class="entity-type">Talent Agency / Representation</div>
+      <div class="entity-status"><span class="badge badge-green">ACTIVE</span></div>
+      <div style="font-size:11px;color:var(--sub);margin-top:8px;line-height:1.6;">Signed 2022 post-Roc Nation split. Covers booking, Culture Currency, and broader development across entertainment verticals.</div>
+    </div>
+    <div class="entity-card">
+      <div class="entity-name">Family Office (In Formation)</div>
+      <div class="entity-type">Personal Wealth Vehicle</div>
+      <div class="entity-status"><span class="badge" style="background:rgba(74,144,217,0.15);color:#7ab8f5;border:1px solid rgba(74,144,217,0.25);">BUILDING</span></div>
+      <div style="font-size:11px;color:var(--sub);margin-top:8px;line-height:1.6;">2026 initiative. Using Claude AI to track royalties, locate money, find red flags, and consolidate financial administration. LinkedIn CEO title active.</div>
+    </div>
+  </div>
+
+  <div class="section-head mb1"><div class="section-title">Contractual History</div></div>
+  <div class="panel mb2">
+    <table>
+      <thead><tr><th>Entity</th><th>Period</th><th>Type</th><th>Key Term</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td class="highlight">MMG / Atlantic Records</td><td class="gold">~2012–2025</td><td>Recording Contract</td><td>13% music revenue share</td><td><span class="badge badge-red">EXITED</span></td></tr>
+        <tr><td class="highlight">Roc Nation Joint Venture</td><td class="gold">2019–2022</td><td>Label Services / Distribution</td><td>Distribution + management support</td><td><span class="badge badge-red">DISSOLVED</span></td></tr>
+        <tr><td class="highlight">WME Partnership</td><td class="gold">2022–Present</td><td>Talent Agency / Strategic</td><td>Culture Currency + full representation</td><td><span class="badge badge-green">ACTIVE</span></td></tr>
+        <tr><td class="highlight">Dream Chasers (Independent)</td><td class="gold">2025–Present</td><td>Owner / Operator</td><td>100% music revenue retained</td><td><span class="badge badge-green">ACTIVE</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-head mb1"><div class="section-title">AI Operations Log</div><div class="section-badge">CLAUDE-POWERED</div></div>
+  <div class="panel">
+    <table>
+      <thead><tr><th>Date</th><th>Action</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td class="gold">Mar 24, 2026</td><td class="highlight">Announced Claude AI use for royalty tracking, money location, red flag identification</td><td><span class="badge badge-green">ACTIVE</span></td></tr>
+        <tr><td class="gold">Mar 2026</td><td class="highlight">Listed as CEO / Self-Employed on LinkedIn — formal business operator identity established</td><td><span class="badge badge-green">ACTIVE</span></td></tr>
+        <tr><td class="gold">2026</td><td class="highlight">Family office formation initiated — consolidating years of financial data</td><td><span class="badge" style="background:rgba(74,144,217,0.15);color:#7ab8f5;border:1px solid rgba(74,144,217,0.25);">IN PROGRESS</span></td></tr>
+        <tr><td class="gold">2025</td><td class="highlight">Full music independence — 100% revenue capture begins</td><td><span class="badge badge-green">MILESTONE</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+
+<!-- =========== OPPORTUNITIES =========== -->
+<div id="page-opportunities" class="page">
+
+  <div class="brief-panel">
+    <div class="brief-header">
+      <div class="brief-title">WHITE SPACE + BLUE OCEAN ANALYSIS</div>
+      <div class="brief-date">Powered by AI Atelier / Value Intelligence</div>
+    </div>
+    <div class="brief-body">Based on your public business data, catalog footprint, and newly independent status, the following opportunities represent the highest-value untapped territory in your current business ecosystem. These are areas where your existing assets — brand, catalog, relationships, and platform — are undermonetized or entirely unused.</div>
+  </div>
+
+  <div class="opp-grid">
+    <div class="opp-card">
+      <div class="opp-type">Blue Ocean — Untapped Category</div>
+      <div class="opp-title">Catalog Sync Licensing Office</div>
+      <div class="opp-desc">Dreams & Nightmares (Intro) is already used in NFL, NBA, and sports broadcasts. You have no dedicated sync licensing operation capturing this demand. A dedicated sync agent or in-house function could generate $500K–$2M annually from catalog alone — with zero new music required.</div>
+      <div class="opp-revenue">Potential: $500K–$2M/yr</div>
+    </div>
+    <div class="opp-card blue-ocean">
+      <div class="opp-type">Blue Ocean — Emerging Category</div>
+      <div class="opp-title">AI-Native Artist Services (via Culture Currency)</div>
+      <div class="opp-desc">You are publicly using Claude to run your business. Culture Currency already positions you as a bridge between entertainment and business infrastructure. First-mover advantage exists to build an AI-powered artist services arm — helping other artists do what you're doing — before anyone else in music does it at scale.</div>
+      <div class="opp-revenue">Potential: $1M–$5M platform play</div>
+    </div>
+    <div class="opp-card white-space">
+      <div class="opp-type">White Space — Undermonetized Asset</div>
+      <div class="opp-title">Featured Artist Revenue Capture</div>
+      <div class="opp-desc">13+ RIAA certifications on other artists' records. You are generating value for Post Malone, Lil Baby, Roddy Ricch, Future, and others. Do you have feature agreements that include backend points or streaming royalty participation? This white space likely represents $200K–$500K in uncollected or undertracked annual earnings.</div>
+      <div class="opp-revenue">Potential: $200K–$500K captured</div>
+    </div>
+    <div class="opp-card">
+      <div class="opp-type">White Space — Undermonetized Asset</div>
+      <div class="opp-title">Dream Chasers Label P&L Optimization</div>
+      <div class="opp-desc">Dream Chasers is fully independent but has no public P&L structure. Building a formal label accounting system — using Claude to track advances, royalties, distribution splits, and marketing spend — transforms the label from a creative entity into a financial asset with measurable returns.</div>
+      <div class="opp-revenue">ROI: Operational clarity + tax efficiency</div>
+    </div>
+    <div class="opp-card blue-ocean">
+      <div class="opp-type">Blue Ocean — Emerging Category</div>
+      <div class="opp-title">Equity-for-Endorsement Model (Lids Replication)</div>
+      <div class="opp-desc">Lids: $200K in, $8M out. That model — equity stake + creative role — is replicable. The question is: what's the next Lids? With WME relationships and Culture Currency infrastructure, you have the pipeline to identify 2–3 emerging brands where an equity-for-endorsement structure creates outsized returns.</div>
+      <div class="opp-revenue">Potential: $2M–$10M per deal</div>
+    </div>
+    <div class="opp-card white-space">
+      <div class="opp-type">White Space — Undermonetized Asset</div>
+      <div class="opp-title">Reform Alliance Commercial Extensions</div>
+      <div class="opp-desc">Reform Alliance is a 501(c)(3) — but the platform, brand awareness, and policy relationships it has built could support adjacent commercial ventures: workforce training, reentry tech, or policy consulting. Jay-Z and Michael Rubin relationships represent access to capital and corporate partners who pay for this infrastructure.</div>
+      <div class="opp-revenue">Potential: $500K–$2M adjacent revenue</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Opportunity Priority Matrix</div>
+    <div class="chart-container">
+      <canvas id="opportunityChart"></canvas>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- =========== WEEKLY BRIEF =========== -->
+<div id="page-brief" class="page">
+
+  <div class="brief-panel">
+    <div class="brief-header">
+      <div class="brief-title">WEEKLY EMPIRE BRIEF</div>
+      <div class="brief-date" id="brief-date">Week of March 24, 2026</div>
+    </div>
+    <div class="brief-body" id="brief-content">
+      <strong>Performance Summary</strong><br>
+      Your independence milestone is now your biggest financial lever. Streaming and catalog revenue that previously generated 13 cents on the dollar now lands at 100% — this is not a small change. It is a structural transformation of your business model.<br><br>
+      <strong>Top 3 Actions This Week:</strong>
+      <div class="brief-rec">
+        <div class="brief-rec-label">Action 01 — Catalog</div>
+        <div class="brief-rec-text">Audit Dreams & Nightmares (Intro) sync usage across sports broadcasts, ads, and media. Identify unlicensed uses. Assign a sync licensing agent or use Claude to build a tracking system. Money is being left on the table here every week.</div>
+      </div>
+      <div class="brief-rec">
+        <div class="brief-rec-label">Action 02 — Operations</div>
+        <div class="brief-rec-text">Finalize Dream Chasers label P&L structure. Every month without formal accounting is a month of data lost. Build your Chart of Accounts this week using Claude as your financial organizer.</div>
+      </div>
+      <div class="brief-rec">
+        <div class="brief-rec-label">Action 03 — Growth</div>
+        <div class="brief-rec-text">Evaluate 2–3 emerging brand partnership targets for the Lids equity-for-endorsement model. The $200K→$8M template is proven. The next deal of that kind is your next 8-figure outcome. Use Culture Currency relationships to source candidates.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="add-data-panel">
+    <div class="add-data-title">Generate New Weekly Brief</div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:1rem;line-height:1.7;">Add new business data below. The brief will update with AI-powered recommendations based on what's changed — revenue shifts, new deals, catalog activity, or operational updates.</div>
+    <div class="input-row">
+      <div class="input-group"><label>This Week's Focus Area</label>
+        <select id="brief-focus">
+          <option value="revenue">Revenue & Streaming</option>
+          <option value="catalog">Catalog & Sync</option>
+          <option value="operations">Operations & Legal</option>
+          <option value="brand">Brand & Endorsements</option>
+          <option value="investment">Investment Activity</option>
+        </select>
+      </div>
+      <div class="input-group"><label>Revenue Change vs Last Week</label>
+        <select id="brief-rev-change">
+          <option value="up">Up</option>
+          <option value="flat">Flat</option>
+          <option value="down">Down</option>
+        </select>
+      </div>
+      <div class="input-group"><label>New Deal or Event (Optional)</label><input type="text" id="brief-event" placeholder="e.g. New sync deal closed"></div>
+    </div>
+    <button class="btn-gold" onclick="generateBrief()">Generate This Week's Brief</button>
+    <div id="generated-brief"></div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+  // NAV
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // DONUT CHART
+  const donutCtx = document.getElementById('donutChart').getContext('2d');
+  new Chart(donutCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Touring','Streaming','Endorsements','Investments','Label','Other'],
+      datasets: [{
+        data: [38, 18, 18, 15, 7, 4],
+        backgroundColor: ['#C9A84C','#4A90D9','#2ECC71','#E8C97A','#7B4FD4','#64748b'],
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      cutout: '72%',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` } } }
+    }
+  });
+
+  // INDEPENDENCE CHART
+  const indCtx = document.getElementById('independenceChart').getContext('2d');
+  new Chart(indCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Under Label (Pre-2025)', 'Independent (2025+)'],
+      datasets: [{
+        label: 'Revenue Retained (%)',
+        data: [13, 100],
+        backgroundColor: ['rgba(224,62,62,0.5)', 'rgba(46,204,113,0.6)'],
+        borderColor: ['#E03E3E', '#2ECC71'],
+        borderWidth: 1,
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y}% of music revenue retained` } } },
+      scales: {
+        y: { max: 110, ticks: { color: 'rgba(255,255,255,0.4)', callback: v => v + '%', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        x: { ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } }, grid: { display: false } }
+      }
+    }
+  });
+
+  // MONTHLY REVENUE DATA
+  let monthlyData = {
+    labels: ['Oct 2025','Nov 2025','Dec 2025','Jan 2026','Feb 2026','Mar 2026'],
+    streaming: [62000, 71000, 95000, 78000, 83000, 91000],
+    touring:   [0, 0, 180000, 0, 120000, 240000],
+    brand:     [80000, 80000, 80000, 95000, 95000, 110000],
+    label:     [22000, 28000, 35000, 30000, 32000, 38000],
+    other:     [12000, 15000, 20000, 18000, 16000, 22000]
+  };
+
+  const revCtx = document.getElementById('revenueChart').getContext('2d');
+  const revenueChart = new Chart(revCtx, {
+    type: 'bar',
+    data: {
+      labels: monthlyData.labels,
+      datasets: [
+        { label: 'Streaming', data: monthlyData.streaming, backgroundColor: 'rgba(74,144,217,0.7)', borderRadius: 4, stack: 'a' },
+        { label: 'Touring', data: monthlyData.touring, backgroundColor: 'rgba(201,168,76,0.8)', borderRadius: 4, stack: 'a' },
+        { label: 'Brand', data: monthlyData.brand, backgroundColor: 'rgba(46,204,113,0.7)', borderRadius: 4, stack: 'a' },
+        { label: 'Label', data: monthlyData.label, backgroundColor: 'rgba(123,79,212,0.7)', borderRadius: 4, stack: 'a' },
+        { label: 'Other', data: monthlyData.other, backgroundColor: 'rgba(100,116,139,0.7)', borderRadius: 4, stack: 'a' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } } } },
+      scales: {
+        x: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 10 } }, grid: { display: false } },
+        y: { ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 10 }, callback: v => '$' + (v/1000).toFixed(0) + 'K' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+      }
+    }
+  });
+
+  function addMonthlyData() {
+    const month = document.getElementById('input-month').value;
+    const streaming = parseInt(document.getElementById('input-streaming').value) || 0;
+    const touring = parseInt(document.getElementById('input-touring').value) || 0;
+    const brand = parseInt(document.getElementById('input-brand').value) || 0;
+    const label = parseInt(document.getElementById('input-label').value) || 0;
+    const other = parseInt(document.getElementById('input-other').value) || 0;
+
+    const label_display = new Date(month + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    monthlyData.labels.push(label_display);
+    monthlyData.streaming.push(streaming);
+    monthlyData.touring.push(touring);
+    monthlyData.brand.push(brand);
+    monthlyData.label.push(label);
+    monthlyData.other.push(other);
+
+    revenueChart.data.labels = monthlyData.labels;
+    revenueChart.data.datasets[0].data = monthlyData.streaming;
+    revenueChart.data.datasets[1].data = monthlyData.touring;
+    revenueChart.data.datasets[2].data = monthlyData.brand;
+    revenueChart.data.datasets[3].data = monthlyData.label;
+    revenueChart.data.datasets[4].data = monthlyData.other;
+    revenueChart.update();
+
+    alert('Month added. Head to Weekly Brief to generate an updated recommendation.');
+  }
+
+  // OPPORTUNITY MATRIX
+  const oppCtx = document.getElementById('opportunityChart').getContext('2d');
+  new Chart(oppCtx, {
+    type: 'bubble',
+    data: {
+      datasets: [
+        { label: 'Sync Licensing Office', data: [{ x: 8, y: 85, r: 18 }], backgroundColor: 'rgba(201,168,76,0.6)' },
+        { label: 'AI Artist Services', data: [{ x: 6, y: 95, r: 22 }], backgroundColor: 'rgba(74,144,217,0.6)' },
+        { label: 'Featured Artist Revenue', data: [{ x: 9, y: 60, r: 14 }], backgroundColor: 'rgba(46,204,113,0.6)' },
+        { label: 'Label P&L Optimization', data: [{ x: 9, y: 70, r: 14 }], backgroundColor: 'rgba(232,201,122,0.6)' },
+        { label: 'Equity-for-Endorsement', data: [{ x: 5, y: 90, r: 20 }], backgroundColor: 'rgba(123,79,212,0.6)' },
+        { label: 'Reform Alliance Extensions', data: [{ x: 7, y: 55, r: 12 }], backgroundColor: 'rgba(100,116,139,0.6)' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: 'rgba(255,255,255,0.5)', font: { size: 10 }, boxWidth: 10 } }, tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label} — Ease: ${ctx.parsed.x}/10, Revenue Potential: ${ctx.parsed.y}/100` } } },
+      scales: {
+        x: { min: 0, max: 10, title: { display: true, text: 'Ease of Execution (10 = easiest)', color: 'rgba(255,255,255,0.4)', font: { size: 10 } }, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+        y: { min: 0, max: 100, title: { display: true, text: 'Revenue Potential Score', color: 'rgba(255,255,255,0.4)', font: { size: 10 } }, ticks: { color: 'rgba(255,255,255,0.4)', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+      }
+    }
+  });
+
+  // BRIEF GENERATION
+  const briefs = {
+    revenue: {
+      up: { action1: "Streaming revenue is trending up. Now is the time to push catalog placement on editorial playlists across Spotify and Apple Music. Contact your DSP rep this week to pitch D&N Intro for new sports and culture placements.", action2: "With revenue up, allocate 10% of this month's streaming income into the family office reserve. Build the habit now while cash flow is positive.", action3: "Review all active brand endorsement contracts for performance bonuses tied to streaming milestones. You may be leaving trigger payments unclaimed." },
+      flat: { action1: "Flat revenue weeks are data. Look at which streams are declining — older catalog or recent releases? That tells you where to focus promotion dollars.", action2: "A flat week is a good week to audit your digital distribution setup. Are all catalog titles properly registered across every DSP with correct metadata?", action3: "Identify one sync placement opportunity this week. A single placement of D&N Intro in a major brand ad can produce more revenue than a full streaming month." },
+      down: { action1: "Revenue down signals it's time to activate a touring cycle or a content push. Identify 3 markets where your demand is highest and get WME to price out shows.", action2: "Audit your streaming catalog for any titles that may have metadata errors or distribution gaps — missing revenue is often a data problem, not a demand problem.", action3: "Reach out to one brand partner this week to discuss contract renewal or expansion. Your independence story is a compelling pitch for premium deals right now." }
+    },
+    catalog: {
+      up: { action1: "Catalog activity up. Identify the specific tracks driving the lift and investigate whether there's an unlicensed sync use behind the spike.", action2: "Document this catalog performance data in your family office records. Historical streaming data is leverage when negotiating future deals.", action3: "Explore a catalog-backed financing arrangement. Strong catalog performance can secure advances at favorable terms without giving up equity." },
+      flat: { action1: "Flat catalog week. Run a sync audit on your top 5 tracks. Identify which are registered with a sync agent and which are not.", action2: "File a catalog performance report internally. Every quarter without documentation is a quarter of data lost from your financial story.", action3: "Pitch one existing track to a sports brand, TV show, or streaming platform for licensed use this week." },
+      down: { action1: "Catalog down weeks often mean a competitor track is capturing playlist real estate you used to own. Identify the competing tracks and assess.", action2: "Consider a catalog remix or re-release strategy to re-inject an older title into the algorithm with fresh metadata.", action3: "Brief your label team on a content activation plan tied to your top 3 catalog performers." }
+    }
+  };
+
+  function generateBrief() {
+    const focus = document.getElementById('brief-focus').value;
+    const change = document.getElementById('brief-rev-change').value;
+    const event = document.getElementById('brief-event').value;
+
+    const data = briefs[focus] ? briefs[focus][change] : briefs['revenue'][change];
+    const now = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+    let output = `<strong>Generated: ${now}</strong><br><br>`;
+    if (event) output += `<strong>New Event Logged:</strong> ${event}<br><br>`;
+    output += `<strong>Focus Area:</strong> ${document.getElementById('brief-focus').options[document.getElementById('brief-focus').selectedIndex].text}<br>`;
+    output += `<strong>Revenue Signal:</strong> ${change.charAt(0).toUpperCase() + change.slice(1)}<br><br>`;
+    output += `<strong>This Week's Recommendations:</strong><br><br>`;
+    output += `<strong>01.</strong> ${data.action1}<br><br>`;
+    output += `<strong>02.</strong> ${data.action2}<br><br>`;
+    output += `<strong>03.</strong> ${data.action3}<br><br>`;
+    output += `<em style="color:rgba(255,255,255,0.3);font-size:11px;">Generated by AI Atelier — Empire Command Center. Add new data monthly for updated intelligence.</em>`;
+
+    const el = document.getElementById('generated-brief');
+    el.style.display = 'block';
+    el.innerHTML = output;
+  }
+</script>
+</body>
+</html>
